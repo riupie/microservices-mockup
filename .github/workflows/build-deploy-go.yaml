@@ -48,7 +48,6 @@ jobs:
       - name: Replace manifest on backend-go
         run:  |
           sed -i 's/SHORT_SHA/${{ steps.vars.outputs.sha_short }}/g' backend-go/kubernetes/deployment.yaml
-          cat backend-go/kubernetes/deployment.yaml
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
