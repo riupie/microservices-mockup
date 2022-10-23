@@ -6,7 +6,7 @@ metadata:
 spec:
  acme:
    server: https://acme-v02.api.letsencrypt.org/directory
-   email: rahmataw96@gmail.com
+   email: xxx@example.com
    privateKeySecretRef:
      name: letsencrypt-demo
    # Enable the HTTP-01 challenge provider
