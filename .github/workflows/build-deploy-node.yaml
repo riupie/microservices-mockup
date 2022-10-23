@@ -21,6 +21,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Get short SHA
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
@@ -37,7 +41,7 @@ jobs:
         with:
           context: ./backend-node/
           tags: |
-            ghcr.io/${{ github.repository }}/backend-node:${GITHUB_SHA:0:7}
+            ghcr.io/${{ github.repository }}/backend-node:${{ steps.vars.outputs.sha_short }}
             ghcr.io/${{ github.repository }}/backend-node:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
