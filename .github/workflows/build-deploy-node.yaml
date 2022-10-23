@@ -37,7 +37,7 @@ jobs:
         with:
           context: ./backend-node/
           tags: |
-            ghcr.io/${{ github.repository }}/backend-node:${GITHUB_SHA::7}
+            ghcr.io/${{ github.repository }}/backend-node:${GITHUB_SHA:0:7}
             ghcr.io/${{ github.repository }}/backend-node:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
