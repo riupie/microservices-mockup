@@ -8,11 +8,22 @@ This repository contains some microservices application that will be deployed to
 * CI/CD pipeline will build the container image --> push image to Github Container Registry --> deploy to Kubernetes cluster.
 * Done! :)
 
-### Exposing backend services to internet
+###  🚀 Exposing backend services to internet 🚀
 * Setup NGINX ingress controller for traffic routing and HTTPS termination. Manifest can be found on [here](add-ons/ingress-nginx/deploy.yaml)
 * Setup Cert Manager for certificate management. Manifest can be found on [here](add-ons/cert-manager/cert-manager.yaml)
 * Setup Cluster Issuer and use Let's Encrypt as certificate provider. Manifest can be found [here](add-ons/cert-manager/cluster-issuer.yaml)
 * Create Ingress for backend-go and backend-node. Manifest can be found on [here](add-ons/ingress-nginx/ingress.yaml)
+
+### Services Endpoints
+* Backend Golang:
+  * https://go.rahmatawe.com/ping
+  * https://go.rahmatawe.com/home
+  * https://go.rahmatawe.com/ (will return 404)
+
+* Backend Node:
+  * https://node.rahmatawe.com/
+  * https://node.rahmatawe.com/health/sync
+  * https://node.rahmatawe.com/health/async
 
 ## Directory Structure
 
