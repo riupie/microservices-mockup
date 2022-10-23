@@ -1,0 +1,61 @@
+name: Build and Deploy Backend Golang
+on:
+  push:
+    branches: [main]
+    paths:
+    - 'backend-go/**'
+    - '.github/workflows/build-deploy-go.yaml'
+  pull_request:
+
+env:
+  DO_CLUSTER_NAME: k8s-1-24-4-do-0-sgp1-1666449499516
+  K8S_NAMESPACE: demo
+jobs:
+  build-and-push-docker-image:
+    name: Build Docker image and push to repositories
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image and push backend-go to  GitHub Container Registry
+        uses: docker/build-push-action@v2
+        with:
+          context: ./backend-go/
+          tags: |
+            ghcr.io/${{ github.repository }}/backend-go:${GITHUB_SHA::7}
+            ghcr.io/${{ github.repository }}/backend-go:latest
+          push: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Replace manifest on backend-go
+        run:  |
+          sed -i 's/SHORT_SHA/${{ steps.vars.outputs.sha_short }}/g' backend-go/kubernetes/deployment.yaml
+          cat backend-go/kubernetes/deployment.yaml
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_K8S_TOKEN }}
+      
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ env.DO_CLUSTER_NAME }} 
+
+      - name: Deploy backend-go to  Kubernetes
+        run: kubectl apply -f backend-go/kubernetes/deployment.yaml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/backend-go -n ${{ env.K8S_NAMESPACE }}
