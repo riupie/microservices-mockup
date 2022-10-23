@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: backend-node
+    part-of: backend-node
+  name: backend-node
+  namespace: demo
+spec:
+  selector:
+    matchLabels:
+      app: backend-node
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: backend-node
+        part-of: backend-node
+    spec:
+      containers:
+        - name: backend-node
+          image: ghcr.io/riupie/backend-k8s-services/backend-node:SHORT_SHA
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - secretRef:
+                name: backend-node-secret
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - 'ALL'
+            runAsNonRoot: true
+            runAsUser: 100001
+            seccompProfile:
+              type: RuntimeDefault
+          readinessProbe:
+            httpGet:
+              path: /health/sync
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/sync
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200M
+            requests:
+              cpu: 50m
+              memory: 100M
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: backend-node
+    part-of: backend-node
+  name: backend-node
+  namespace: demo
+spec:
+  selector:
+    app: backend-node
+  ports:
+    - name: backend-node-http
+      port: 3001
+      protocol: TCP
+      targetPort: 3001
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-node-secret
+  namespace: demo
+data:
+  MONGODB_URL: bW9uZ29kYjovL21vbmdvYWRtaW46bW9uZ29wd0BkZW1vLW1vbmdvOjI3MDE3L2JhY2tlbmQtbm9kZQ==
