@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: backend-node
-          image: ghcr.io/riupie/backend-k8s-services/backend-node:SHORT_SHA
+          image: ghcr.io/riupie/microservices-mockup/backend-node:SHORT_SHA
           ports:
             - containerPort: 3001
           envFrom:

@@ -1,4 +1,4 @@
-# backend-node 6.1
+# backend-node
 
 Boilerplate express + mongoose API with unit test setup (mocha, chai, supertest, rewire, sinon)
 
