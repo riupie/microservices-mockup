@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: backend-go
+    part-of: backend-go
+  name: backend-go
+  namespace: demo
+spec:
+  selector:
+    matchLabels:
+      app: backend-go
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: backend-go
+        part-of: backend-go
+    spec:
+      containers:
+        - name: backend-go
+          image: ghcr.io/riupie/backend-k8s-services/backend-go:SHORT_SHA
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - 'ALL'
+            runAsNonRoot: true
+            runAsUser: 100001
+            seccompProfile:
+              type: RuntimeDefault
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200M
+            requests:
+              cpu: 50m
+              memory: 100M
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: backend-go
+    part-of: backend-go
+  name: backend-go
+  namespace: demo
+spec:
+  selector:
+    app: backend-go
+  ports:
+    - name: backend-go-http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
