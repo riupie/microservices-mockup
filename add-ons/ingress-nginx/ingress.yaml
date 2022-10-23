@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-demo
+  name: demo-ingress
+  namespace: demo
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: go.rahmatawe.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: backend-go
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+  - host: node.rahmatawe.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: backend-node
+            port:
+              number: 3001
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - go.rahmatawe.com
+    - node.rahmatawe.com
+    secretName: star-rahmatawe-com
